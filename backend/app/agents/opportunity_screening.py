@@ -124,14 +124,26 @@ def _evaluate_core_facts(state: PropertyState) -> int:
         screening.flags.append("Invalid square footage")
         score_delta -= 18
     elif property_info.square_feet < 700:
-        screening.flags.append("Very small property")
-        score_delta -= 8
-    elif property_info.square_feet <= 2400:
-        screening.positive_signals.append("Manageable property size")
+        screening.flags.append("Property is too small for current target market")
+        score_delta -= 10
+    # Square footage thresholds reflect Fabiola's current investment philosophy,
+    # not universal real estate rules.
+    elif property_info.square_feet < 1000:
+        pass
+    elif property_info.square_feet <= 1700:
+        screening.positive_signals.append("Ideal property size for current strategy")
+        score_delta += 8
+    elif property_info.square_feet <= 2000:
+        screening.positive_signals.append("Slightly above ideal size, but still favorable")
         score_delta += 4
+    elif property_info.square_feet <= 2500:
+        pass
+    elif property_info.square_feet <= 3500:
+        screening.flags.append("Larger property may increase renovation and holding costs")
+        score_delta -= 6
     elif property_info.square_feet > 3500:
-        screening.flags.append("Large property may increase renovation scope")
-        score_delta -= 4
+        screening.flags.append("Property size is outside current investment strategy")
+        score_delta -= 10
 
     if property_info.year_built is None:
         screening.missing_information.append("Year built")

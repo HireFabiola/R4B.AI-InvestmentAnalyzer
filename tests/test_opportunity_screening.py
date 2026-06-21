@@ -28,8 +28,66 @@ class OpportunityScreeningAgentTests(unittest.TestCase):
         self.assertEqual(result.current_stage, "screening_complete")
         self.assertGreaterEqual(result.screening.opportunity_score, 70)
         self.assertGreaterEqual(result.screening.information_completeness, 0.9)
-        self.assertIn("Manageable property size", result.screening.positive_signals)
+        self.assertIn(
+            "Ideal property size for current strategy",
+            result.screening.positive_signals,
+        )
         self.assertIn("price_per_square_foot", result.screening.metrics)
+
+    def test_square_footage_scoring_reflects_current_investment_strategy(self):
+        scenarios = [
+            (650, -10, [], ["Property is too small for current target market"]),
+            (850, 0, [], []),
+            (1500, 8, ["Ideal property size for current strategy"], []),
+            (
+                1850,
+                4,
+                ["Slightly above ideal size, but still favorable"],
+                [],
+            ),
+            (2250, 0, [], []),
+            (
+                3000,
+                -6,
+                [],
+                ["Larger property may increase renovation and holding costs"],
+            ),
+            (
+                3600,
+                -10,
+                [],
+                ["Property size is outside current investment strategy"],
+            ),
+        ]
+
+        for square_feet, expected_delta, expected_signals, expected_flags in scenarios:
+            with self.subTest(square_feet=square_feet):
+                property_info = PropertyInfo(
+                    address="123 Main St",
+                    asking_price=square_feet * 150,
+                    listing_url="https://example.com/listing/123-main",
+                    description="Clean listing with updated cosmetic finishes.",
+                    bedrooms=3,
+                    bathrooms=2,
+                    square_feet=square_feet,
+                    year_built=1985,
+                    photos=[f"photo-{index}.jpg" for index in range(10)],
+                )
+                state = PropertyState(property_info=property_info)
+
+                result = opportunity_screening_agent(state)
+
+                baseline_without_square_footage = 82
+                self.assertEqual(
+                    result.screening.opportunity_score,
+                    baseline_without_square_footage + expected_delta,
+                )
+
+                for signal in expected_signals:
+                    self.assertIn(signal, result.screening.positive_signals)
+
+                for flag in expected_flags:
+                    self.assertIn(flag, result.screening.flags)
 
     def test_missing_address_requests_more_information(self):
         property_info = PropertyInfo(

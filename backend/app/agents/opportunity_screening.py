@@ -25,8 +25,6 @@ OPPORTUNITY_KEYWORDS = {
     "curb appeal": "Curb appeal potential",
     "updated": "Some updates already present",
 }
-
-
 def opportunity_screening_agent(state: PropertyState) -> PropertyState:
     """
     Screens a property using listing-level information only.

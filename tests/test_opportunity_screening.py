@@ -1,0 +1,95 @@
+import unittest
+
+from backend.app.agents.opportunity_screening import opportunity_screening_agent
+from backend.app.models.property_state import PropertyInfo, PropertyState
+
+
+class OpportunityScreeningAgentTests(unittest.TestCase):
+    def test_complete_listing_with_value_add_signals_recommends_visit(self):
+        property_info = PropertyInfo(
+            address="123 Main St",
+            asking_price=225000,
+            listing_url="https://example.com/listing/123-main",
+            description=(
+                "Charming home with good bones, hardwood floors, large windows, "
+                "natural light, and mostly cosmetic updates needed."
+            ),
+            bedrooms=3,
+            bathrooms=2,
+            square_feet=1500,
+            year_built=1985,
+            photos=[f"photo-{index}.jpg" for index in range(10)],
+        )
+        state = PropertyState(property_info=property_info)
+
+        result = opportunity_screening_agent(state)
+
+        self.assertEqual(result.screening.next_action, "Schedule Property Visit")
+        self.assertEqual(result.current_stage, "screening_complete")
+        self.assertGreaterEqual(result.screening.opportunity_score, 70)
+        self.assertGreaterEqual(result.screening.information_completeness, 0.9)
+        self.assertIn("Manageable property size", result.screening.positive_signals)
+        self.assertIn("price_per_square_foot", result.screening.metrics)
+
+    def test_missing_address_requests_more_information(self):
+        property_info = PropertyInfo(
+            address="",
+            asking_price=225000,
+            bedrooms=3,
+            bathrooms=2,
+            square_feet=1500,
+        )
+        state = PropertyState(property_info=property_info)
+
+        result = opportunity_screening_agent(state)
+
+        self.assertEqual(result.screening.next_action, "Request More Information")
+        self.assertEqual(result.screening.opportunity_score, 0)
+        self.assertEqual(result.screening.flags, ["Missing address"])
+        self.assertEqual(result.current_stage, "screening")
+
+    def test_sparse_listing_requests_more_information(self):
+        property_info = PropertyInfo(
+            address="456 Oak Ave",
+            asking_price=180000,
+        )
+        state = PropertyState(property_info=property_info)
+
+        result = opportunity_screening_agent(state)
+
+        self.assertEqual(result.screening.next_action, "Request More Information")
+        self.assertLess(result.screening.information_completeness, 0.65)
+        self.assertIn("Square footage", result.screening.missing_information)
+        self.assertIn("Listing photos", result.screening.missing_information)
+
+    def test_major_structural_concern_can_recommend_pass(self):
+        property_info = PropertyInfo(
+            address="789 Pine Rd",
+            asking_price=310000,
+            listing_url="https://example.com/listing/789-pine",
+            description=(
+                "Investor special sold as-is. Full gut renovation needed with "
+                "possible foundation and structural issues."
+            ),
+            bedrooms=2,
+            bathrooms=1,
+            square_feet=1000,
+            year_built=1920,
+            photos=["front.jpg", "kitchen.jpg", "bath.jpg"],
+        )
+        state = PropertyState(property_info=property_info)
+
+        result = opportunity_screening_agent(state)
+
+        self.assertEqual(result.screening.next_action, "Pass")
+        self.assertLess(result.screening.opportunity_score, 45)
+        self.assertTrue(
+            any("foundation" in flag.lower() for flag in result.screening.flags)
+        )
+        self.assertTrue(
+            any("structural" in flag.lower() for flag in result.screening.flags)
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()

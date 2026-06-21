@@ -148,9 +148,23 @@ def _evaluate_core_facts(state: PropertyState) -> int:
     if property_info.year_built is None:
         screening.missing_information.append("Year built")
         score_delta -= 2
-    elif property_info.year_built < 1940:
-        screening.flags.append("Older property may require systems review")
-        score_delta -= 3
+    # Year-built thresholds reflect R4B.AI's preference for system predictability
+    # and due diligence, not a belief that older homes are automatically bad.
+    elif property_info.year_built < 1950:
+        screening.flags.append(
+            "Verify roof, HVAC, plumbing, and electrical due to property age"
+        )
+        score_delta -= 6
+    elif property_info.year_built <= 1979:
+        screening.flags.append(
+            "Verify major systems due to mid-century property age"
+        )
+        score_delta -= 4
+    elif property_info.year_built <= 1989:
+        screening.flags.append(
+            "Confirm major systems have been maintained or updated"
+        )
+        score_delta -= 1
 
     return score_delta
 

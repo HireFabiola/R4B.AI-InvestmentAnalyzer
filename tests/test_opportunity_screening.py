@@ -77,7 +77,7 @@ class OpportunityScreeningAgentTests(unittest.TestCase):
 
                 result = opportunity_screening_agent(state)
 
-                baseline_without_square_footage = 82
+                baseline_without_square_footage = 81
                 self.assertEqual(
                     result.screening.opportunity_score,
                     baseline_without_square_footage + expected_delta,
@@ -88,6 +88,59 @@ class OpportunityScreeningAgentTests(unittest.TestCase):
 
                 for flag in expected_flags:
                     self.assertIn(flag, result.screening.flags)
+
+    def test_year_built_scoring_reflects_system_predictability_strategy(self):
+        scenarios = [
+            (None, -2, "Year built", None),
+            (
+                1945,
+                -6,
+                None,
+                "Verify roof, HVAC, plumbing, and electrical due to property age",
+            ),
+            (
+                1965,
+                -4,
+                None,
+                "Verify major systems due to mid-century property age",
+            ),
+            (
+                1985,
+                -1,
+                None,
+                "Confirm major systems have been maintained or updated",
+            ),
+            (1995, 0, None, None),
+        ]
+
+        for year_built, expected_delta, missing_info, expected_flag in scenarios:
+            with self.subTest(year_built=year_built):
+                property_info = PropertyInfo(
+                    address="123 Main St",
+                    asking_price=225000,
+                    listing_url="https://example.com/listing/123-main",
+                    description="Clean listing with updated cosmetic finishes.",
+                    bedrooms=3,
+                    bathrooms=2,
+                    square_feet=1500,
+                    year_built=year_built,
+                    photos=[f"photo-{index}.jpg" for index in range(10)],
+                )
+                state = PropertyState(property_info=property_info)
+
+                result = opportunity_screening_agent(state)
+
+                baseline_without_year_built = 90
+                self.assertEqual(
+                    result.screening.opportunity_score,
+                    baseline_without_year_built + expected_delta,
+                )
+
+                if missing_info:
+                    self.assertIn(missing_info, result.screening.missing_information)
+
+                if expected_flag:
+                    self.assertIn(expected_flag, result.screening.flags)
 
     def test_missing_address_requests_more_information(self):
         property_info = PropertyInfo(

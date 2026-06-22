@@ -49,6 +49,24 @@ R4B.AI uses a five-agent workflow supported by one structured data collection st
 
 LangGraph will orchestrate the workflow so each step has a defined responsibility and predictable handoff.
 
+## Backend Setup
+
+From the project root:
+
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+Tests can be run from the project root:
+
+```bash
+python3 -m unittest discover -s tests
+```
+
 ## Documentation
 
 * [Architecture](docs/architecture.md)

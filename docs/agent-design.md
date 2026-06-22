@@ -49,23 +49,127 @@ Because Property Intake does not make an independent decision, it is implemented
 
 ## Primary Decision
 
-**Is this opportunity worth further investigation?**
+> **Is this opportunity worth further investigation?**
 
-Typical responsibilities:
+The Opportunity Screening Agent performs an initial screening using only listing-level information. Its purpose is to determine whether a property appears promising enough to justify additional time, research, and due diligence.
 
-* Review listing photos for visible opportunity and obvious concerns
-* Compare the asking price against a preliminary market check
-* Determine whether the property aligns with the investor's philosophy
-* Recommend the next best action
+This agent **does not** determine whether a property should ultimately be purchased.
 
-Typical outputs:
+---
 
-* Schedule Property Visit
-* Request Additional Information
-* Contact Listing Agent
-* Pass
+## Responsibilities
 
-The Opportunity Screening Agent evaluates only listing-level information. It does not replace a property inspection or final investment analysis.
+- Evaluate the property's fundamental characteristics:
+  - Bedrooms
+  - Bathrooms
+  - Square Footage
+  - Year Built
+- Compare the asking price against preliminary pricing metrics.
+- Review listing photos for visible opportunities and obvious concerns.
+- Analyze the listing description for positive signals, major concerns, and investigation triggers.
+- Assess the completeness and quality of the available listing information.
+- Determine whether the opportunity aligns with the investor's current investment philosophy.
+- Recommend the next best action.
+
+---
+
+## Typical Outputs
+
+- Schedule Property Visit
+- Contact Listing Agent
+- Request Additional Information
+- Pass
+
+---
+
+## Evaluation Framework
+
+The Opportunity Screening Agent evaluates every listing through four lenses.
+
+### Strengths
+
+Characteristics that increase the attractiveness of the opportunity.
+
+**Examples**
+
+- Three or more bedrooms
+- Two or more bathrooms
+- Preferred square footage range
+- Favorable preliminary price per square foot
+- Good listing transparency
+- Strong opportunity language ("good bones", "cosmetic", etc.)
+
+---
+
+### Risks
+
+Characteristics that may materially increase renovation cost, uncertainty, or investment risk.
+
+**Examples**
+
+- Foundation concerns
+- Structural concerns
+- Mold
+- Fire damage
+- Roof leaks
+- Full gut renovation
+- Extremely small properties
+- Older properties requiring significant systems verification
+
+---
+
+### Investigation Triggers
+
+Conditions that are **not automatically negative**, but require additional due diligence before making an informed investment decision.
+
+**Examples**
+
+- Cash-only listing
+- As-is listing
+- Missing square footage
+- Missing listing photos
+- Missing property description
+- Unknown system ages
+- Limited property information
+
+---
+
+### Data Completeness
+
+Measures how complete the available listing information is.
+
+The Opportunity Screening Agent uses this to determine whether sufficient information exists to make a reliable preliminary assessment.
+
+Data completeness is **not** a statistical confidence score and should not be interpreted as the probability that the recommendation is correct.
+
+---
+
+## Scope
+
+The Opportunity Screening Agent evaluates **listing-level information only**.
+
+It does **not** replace:
+
+- Property inspections
+- Contractor estimates
+- Financial analysis
+- Market analysis
+- Repair cost estimation
+- Final investment decision-making
+
+Those responsibilities belong to later agents in the R4B.AI pipeline.
+
+---
+
+## Design Philosophy
+
+The Opportunity Screening Agent is intentionally conservative.
+
+Its purpose is **not** to determine whether a property should be purchased.
+
+Its purpose is to answer one question:
+
+> **"Based on the information currently available, is this property worth investigating further?"**
 
 ---
 

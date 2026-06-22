@@ -1,1 +1,2 @@
-# Backend dependencies will be added as the FastAPI and LangGraph implementation begins.
+fastapi
+uvicorn

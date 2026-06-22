@@ -25,8 +25,13 @@ class OpportunityScreeningAgentTests(unittest.TestCase):
         result = opportunity_screening_agent(state)
 
         self.assertEqual(result.screening.next_action, "Schedule Property Visit")
+        self.assertEqual(result.screening.recommendation, "Schedule Property Visit")
         self.assertEqual(result.current_stage, "screening_complete")
         self.assertGreaterEqual(result.screening.opportunity_score, 70)
+        self.assertEqual(
+            result.screening.screening_score,
+            result.screening.opportunity_score,
+        )
         self.assertGreaterEqual(result.screening.information_completeness, 0.9)
         self.assertIn(
             "Ideal property size for current strategy",
@@ -142,6 +147,46 @@ class OpportunityScreeningAgentTests(unittest.TestCase):
                 if expected_flag:
                     self.assertIn(expected_flag, result.screening.flags)
 
+    def test_cash_only_listing_flags_investigation_without_score_penalty(self):
+        base_property = PropertyInfo(
+            address="123 Main St",
+            asking_price=225000,
+            listing_url="https://example.com/listing/123-main",
+            description="Clean listing with updated cosmetic finishes.",
+            bedrooms=3,
+            bathrooms=2,
+            square_feet=1500,
+            year_built=1995,
+            photos=[f"photo-{index}.jpg" for index in range(10)],
+        )
+        cash_only_property = PropertyInfo(
+            address="123 Main St",
+            asking_price=225000,
+            listing_url="https://example.com/listing/123-main",
+            description="Clean listing with updated cosmetic finishes. Cash only.",
+            bedrooms=3,
+            bathrooms=2,
+            square_feet=1500,
+            year_built=1995,
+            photos=[f"photo-{index}.jpg" for index in range(10)],
+        )
+
+        base_result = opportunity_screening_agent(
+            PropertyState(property_info=base_property)
+        )
+        cash_only_result = opportunity_screening_agent(
+            PropertyState(property_info=cash_only_property)
+        )
+
+        self.assertEqual(
+            cash_only_result.screening.opportunity_score,
+            base_result.screening.opportunity_score,
+        )
+        self.assertIn(
+            "Cash-only listing: verify why financing is restricted",
+            cash_only_result.screening.flags,
+        )
+
     def test_missing_address_requests_more_information(self):
         property_info = PropertyInfo(
             address="",
@@ -156,7 +201,9 @@ class OpportunityScreeningAgentTests(unittest.TestCase):
 
         self.assertEqual(result.screening.next_action, "Request More Information")
         self.assertEqual(result.screening.opportunity_score, 0)
+        self.assertEqual(result.screening.screening_score, 0)
         self.assertEqual(result.screening.flags, ["Missing address"])
+        self.assertEqual(result.screening.key_flags, ["Missing address"])
         self.assertEqual(result.current_stage, "screening")
 
     def test_sparse_listing_requests_more_information(self):

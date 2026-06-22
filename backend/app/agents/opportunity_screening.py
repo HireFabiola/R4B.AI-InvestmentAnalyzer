@@ -25,6 +25,15 @@ OPPORTUNITY_KEYWORDS = {
     "curb appeal": "Curb appeal potential",
     "updated": "Some updates already present",
 }
+
+
+class OpportunityScreeningAgent:
+    """Evaluates listing-level opportunity before deeper analysis."""
+
+    def run(self, state: PropertyState) -> PropertyState:
+        return opportunity_screening_agent(state)
+
+
 def opportunity_screening_agent(state: PropertyState) -> PropertyState:
     """
     Screens a property using listing-level information only.
@@ -69,6 +78,7 @@ def opportunity_screening_agent(state: PropertyState) -> PropertyState:
     screening.information_completeness = _calculate_information_completeness(state)
     screening.next_action = _choose_next_action(state)
     screening.reasoning = _build_reasoning(state)
+    _sync_screening_aliases(state)
 
     state.current_stage = "screening_complete"
     return state
@@ -85,8 +95,16 @@ def _request_more_information(
     state.screening.flags = [flag]
     state.screening.opportunity_score = 0
     state.screening.information_completeness = information_completeness
+    _sync_screening_aliases(state)
     state.current_stage = "screening"
     return state
+
+
+def _sync_screening_aliases(state: PropertyState) -> None:
+    screening = state.screening
+    screening.screening_score = screening.opportunity_score
+    screening.recommendation = screening.next_action
+    screening.key_flags = list(screening.flags)
 
 
 def _evaluate_core_facts(state: PropertyState) -> int:
@@ -255,8 +273,8 @@ def _evaluate_description_signals(state: PropertyState) -> int:
             score_delta += 4
 
     if "cash only" in description_text:
-        screening.flags.append("Cash-only listing may indicate financing or condition issues")
-        score_delta -= 8
+        # Cash-only is an investigation trigger, not a direct score penalty.
+        screening.flags.append("Cash-only listing: verify why financing is restricted")
 
     if "as-is" in description_text or "as is" in description_text:
         screening.flags.append("As-is listing requires careful inspection")

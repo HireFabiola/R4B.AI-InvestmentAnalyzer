@@ -18,11 +18,14 @@ class PropertyInfo:
 @dataclass
 class ScreeningResult:
     next_action: Optional[str] = None
+    recommendation: Optional[str] = None
     reasoning: Optional[str] = None
     flags: list[str] = field(default_factory=list)
+    key_flags: list[str] = field(default_factory=list)
     positive_signals: list[str] = field(default_factory=list)
     missing_information: list[str] = field(default_factory=list)
     opportunity_score: Optional[int] = None
+    screening_score: Optional[int] = None
     information_completeness: Optional[float] = None
     metrics: dict[str, float] = field(default_factory=dict)
 

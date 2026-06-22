@@ -5,7 +5,8 @@ try:
 except ModuleNotFoundError:
     FastAPI = None
 
-from backend.app.routes.property_analysis import router as property_analysis_router
+from .api.screening import router as screening_router
+from .routes.property_analysis import router as property_analysis_router
 
 
 if FastAPI:
@@ -13,5 +14,8 @@ if FastAPI:
 
     if property_analysis_router:
         app.include_router(property_analysis_router)
+
+    if screening_router:
+        app.include_router(screening_router)
 else:
     app = None

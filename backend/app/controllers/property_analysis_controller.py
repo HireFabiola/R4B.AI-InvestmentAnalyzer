@@ -1,7 +1,7 @@
 from dataclasses import asdict
 
-from backend.app.models.property_state import PropertyInfo, PropertyState
-from backend.app.orchestrators.analysis_orchestrator import AnalysisOrchestrator
+from ..models.property_state import PropertyInfo, PropertyState
+from ..orchestrators.analysis_orchestrator import AnalysisOrchestrator
 
 
 def analyze_property(request_data: dict) -> dict:

@@ -1,4 +1,4 @@
-from backend.app.controllers.property_analysis_controller import analyze_property
+from ..controllers.property_analysis_controller import analyze_property
 
 try:
     from fastapi import APIRouter, HTTPException

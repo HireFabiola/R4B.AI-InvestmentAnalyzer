@@ -1,3 +1,3 @@
-from backend.app.orchestrators.analysis_orchestrator import AnalysisOrchestrator
+from .analysis_orchestrator import AnalysisOrchestrator
 
 __all__ = ["AnalysisOrchestrator"]

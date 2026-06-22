@@ -1,4 +1,4 @@
-from backend.app.models.property_state import PropertyState
+from ..models.property_state import PropertyState
 
 
 MAJOR_CONCERN_KEYWORDS = {

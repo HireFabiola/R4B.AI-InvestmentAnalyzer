@@ -1,5 +1,5 @@
-from backend.app.agents.opportunity_screening import OpportunityScreeningAgent
-from backend.app.models.property_state import PropertyState
+from ..agents.opportunity_screening import OpportunityScreeningAgent
+from ..models.property_state import PropertyState
 
 
 class AnalysisOrchestrator:
